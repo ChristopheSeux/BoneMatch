@@ -1,8 +1,36 @@
 import bpy
 from .utils import armature_info
 from .match_bones import match_bones
+from rigutils.utils import find_rig_users
 
 def update_rig(rig,autorig,metarig):
+    scene = bpy.context.scene
+    ob = bpy.context.object
+
+    autorig = scene.BoneMatch.autorig
+
+    autorig_copy = autorig.copy()
+    autorig_copy.data = autorig.data.copy()
+
+    action = ob.animation_data.action
+    name = ob.name
+
+    ob.user_remap(autorig_copy)
+
+    scene.objects.active = autorig_copy
+
+    autorig.user_remap(autorig_copy)
+
+    bpy.ops.bonematch.match_bones()
+
+    if action :
+        autorig_copy.animation_data.action = action
+
+    autorig.name = name
+    autorig.data.name = name
+    #users = find_rig_users(ob)
+
+def old_update_rig(rig,autorig,metarig):
     scene = bpy.context.scene
     #metarig_values = armature_info(metarig)
     rig_values = armature_info(rig)
